@@ -38,9 +38,12 @@ public class Board {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "board")
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board")
+    private List<UploadFile> uploadFiles = new ArrayList<>();
+
     @Builder
     @QueryProjection
-    public Board(Long id, User user, String title, String content, Boolean authorize, LocalDateTime create_at, LocalDateTime update_at, LocalDateTime delete_at) {
+    public Board(Long id, User user, String title, String content, Boolean authorize, LocalDateTime create_at, LocalDateTime update_at, LocalDateTime delete_at, List<UploadFile> uploadFiles) {
         this.id = id;
         this.user = user;
         this.title = title;
@@ -49,6 +52,7 @@ public class Board {
         this.create_at = create_at;
         this.update_at = update_at;
         this.delete_at = delete_at;
+        this.uploadFiles = uploadFiles;
     }
 
 }
