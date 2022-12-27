@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Table(name = "board")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Board {
+public class Board extends BaseEntity{
     @Id
     @GeneratedValue
     @Column(name = "board_id")
@@ -26,10 +26,6 @@ public class Board {
     private String content;
 
     private Boolean authorize;
-
-    private LocalDateTime create_at;
-    private LocalDateTime update_at;
-    private LocalDateTime delete_at;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -43,15 +39,12 @@ public class Board {
 
     @Builder
     @QueryProjection
-    public Board(Long id, User user, String title, String content, Boolean authorize, LocalDateTime create_at, LocalDateTime update_at, LocalDateTime delete_at, List<UploadFile> uploadFiles) {
+    public Board(Long id, User user, String title, String content, Boolean authorize, List<UploadFile> uploadFiles) {
         this.id = id;
         this.user = user;
         this.title = title;
         this.content = content;
         this.authorize = authorize;
-        this.create_at = create_at;
-        this.update_at = update_at;
-        this.delete_at = delete_at;
         this.uploadFiles = uploadFiles;
     }
 

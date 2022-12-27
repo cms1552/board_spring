@@ -5,6 +5,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,7 +18,7 @@ import java.util.List;
 @Getter
 @Table(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity{
     @Id
     @GeneratedValue
     @Column(name = "user_id")
@@ -25,12 +28,6 @@ public class User {
 
     private String password;
 
-    private LocalDateTime create_at;
-
-    private LocalDateTime update_at;
-
-    private LocalDateTime delete_at;
-
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Board> boards = new ArrayList<>();
 
@@ -39,12 +36,9 @@ public class User {
 
     @Builder
     @QueryProjection
-    public User(Long id, String login_id, String password, LocalDateTime create_at, LocalDateTime update_at, LocalDateTime delete_at) {
+    public User(Long id, String login_id, String password) {
         this.id = id;
         this.loginId = login_id;
         this.password = password;
-        this.create_at = create_at;
-        this.update_at = update_at;
-        this.delete_at = delete_at;
     }
 }

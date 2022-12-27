@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "uploadfile")
-public class UploadFile {
+public class UploadFile extends BaseEntity{
     @Id
     @GeneratedValue
     @Column(name = "uploadfile_id")
