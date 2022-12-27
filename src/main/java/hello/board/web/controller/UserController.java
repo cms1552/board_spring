@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.net.http.HttpRequest;
 
 @Slf4j
 @Controller
@@ -34,7 +33,7 @@ public class UserController {
     @GetMapping("/join")
     public String joinForm(Model model) {
         model.addAttribute("user", new UserDto());
-        return "join";
+        return "joinForm";
     }
 
     // 회원가입
@@ -42,7 +41,7 @@ public class UserController {
     public String join(HttpServletRequest request, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("join exception {}",bindingResult);
-            return "join";
+            return "joinForm";
         }
 
         String dtoLogin_id = userDto.getLogin_id();
