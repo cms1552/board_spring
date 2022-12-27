@@ -70,4 +70,30 @@ public class UserController {
         loginService.logout(request);
         return "index";
     }
+
+    // 로그인 폼
+    @GetMapping("/login")
+    public String loginForm(Model model) {
+        model.addAttribute("user", new UserDto());
+        return "loginForm";
+    }
+
+    // 로그인
+    @PostMapping("/login")
+    public String login(HttpServletRequest request, @ModelAttribute UserDto userDto, BindingResult bindingResult, Model model) {
+
+        User user = User.builder()
+                .login_id(userDto.getLogin_id())
+                .password(userDto.getPassword())
+                .build();
+
+
+        loginService.login(user);
+
+        // 세션 처리 ( 공통 처리기 만들기 )
+        HttpSession session = request.getSession();
+        session.setAttribute(SessionConstant.LOGIN_ID, user.getLoginId());
+
+        return "redirect:/";
+    }
 }
