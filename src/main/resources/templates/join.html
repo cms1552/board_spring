@@ -5,6 +5,7 @@
   <title>User Join</title>
 </head>
 <body>
+  <div class="header" th:replace="~{fragment/bodyHeader}"></div>
   <div class="container">
     <h1>회원가입</h1>
     <form th:action method="post" th:object="${user}">

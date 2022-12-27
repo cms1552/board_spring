@@ -5,6 +5,7 @@
   <title>Title</title>
 </head>
 <body>
+  <div class="header" th:replace="~{fragment/bodyHeader}"></div>
   <div class="container">
     <h1>로그인</h1>
      <form th:object="${user}" th:action method="post">
