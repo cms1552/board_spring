@@ -5,12 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +21,7 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    private String login_id;
+    private String loginId;
 
     private String password;
 
@@ -45,7 +41,7 @@ public class User {
     @QueryProjection
     public User(Long id, String login_id, String password, LocalDateTime create_at, LocalDateTime update_at, LocalDateTime delete_at) {
         this.id = id;
-        this.login_id = login_id;
+        this.loginId = login_id;
         this.password = password;
         this.create_at = create_at;
         this.update_at = update_at;
