@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,8 +39,9 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/join")
-    public String join(HttpServletRequest request, @ModelAttribute UserDto userDto, BindingResult bindingResult, Model model) {
+    public String join(HttpServletRequest request, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+            log.info("join exception {}",bindingResult);
             return "join";
         }
 
@@ -55,8 +57,6 @@ public class UserController {
         log.info("password = " + dtoPassword);
 
         User savedUser = userService.userSave(user);
-
-        model.addAttribute("user", savedUser);
 
         HttpSession session = request.getSession();
         session.setAttribute(SessionConstant.LOGIN_ID, dtoLogin_id);
@@ -80,7 +80,12 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public String login(HttpServletRequest request, @ModelAttribute UserDto userDto, BindingResult bindingResult, Model model) {
+    public String login(HttpServletRequest request, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            log.info("login exception {}",bindingResult);
+            return "loginForm";
+        }
 
         User user = User.builder()
                 .login_id(userDto.getLogin_id())
