@@ -25,7 +25,6 @@ public class Board extends BaseEntity{
     private String title;
     private String content;
 
-    private Boolean authorize;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -39,12 +38,11 @@ public class Board extends BaseEntity{
 
     @Builder
     @QueryProjection
-    public Board(Long id, User user, String title, String content, Boolean authorize, List<UploadFile> uploadFiles) {
+    public Board(Long id, User user, String title, String content, List<UploadFile> uploadFiles) {
         this.id = id;
         this.user = user;
         this.title = title;
         this.content = content;
-        this.authorize = authorize;
         this.uploadFiles = uploadFiles;
     }
 
