@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public class BoardSearchCondition {
-    private String loginId;
-    private String title;
-    private String content;
-    private Boolean authorize;
+    private String selected;
+    private String text;
 }

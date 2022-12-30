@@ -42,16 +42,16 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
 
 
-        return queryFactory
-                .select(board)
-                .from(board)
-                .leftJoin(board.user, user)
-                .where(
-                        userEq(condition.getLoginId()),
-                        titleContains(condition.getTitle()),
-                        contentContains(condition.getContent()),
-                        isAuthorize(condition.getAuthorize())
-                ).fetch();
+//        return queryFactory
+//                .select(board)
+//                .from(board)
+//                .leftJoin(board.user, user)
+//                .where(
+//                        userEq(cond.getLoginId()),
+//                        titleContains(cond.getTitle()),
+//                        contentContains(cond.getContent())
+//                ).fetch();
+        return null;
     }
 
 
@@ -73,20 +73,32 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
     }
 
     @Override
-    public Page<Board> searchPageCondition(BoardSearchCondition condition, Pageable pageable) {
+    public Page<Board> searchPageCondition(BoardSearchCondition cond, Pageable pageable) {
         long offset = pageable.getOffset();
         int pageSize = pageable.getPageSize();
 
+        String selected = cond.getSelected();
+        String text = cond.getText();
+        BooleanExpression ex = null;
+
+        switch (selected) {
+            case "loginId":
+                ex = userEq(text);
+                break;
+            case "title":
+                ex = titleContains(text);
+                break;
+            case "content":
+                ex = contentContains(text);
+                break;
+        }
+
+        //getSelected 에 따라 where절이 달라짐
         List<Board> content = queryFactory
                 .select(board)
                 .from(board)
                 .leftJoin(board.user, user)
-                .where(
-                        userEq(condition.getLoginId()),
-                        titleContains(condition.getTitle()),
-                        contentContains(condition.getContent()),
-                        isAuthorize(condition.getAuthorize())
-                )
+                .where(ex)
                 .offset(offset)
                 .limit(pageSize)
                 .fetch();
@@ -108,9 +120,5 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
 
     private BooleanExpression contentContains(String content) {
         return !hasText(content) ? null : board.content.contains(content);
-    }
-
-    private BooleanExpression isAuthorize(Boolean authorize) {
-        return authorize == null ? null : board.authorize.eq(authorize);
     }
 }

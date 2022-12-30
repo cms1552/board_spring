@@ -21,15 +21,20 @@ public class BoardService {
         if (index.intValue() < 1) {
             i=0;
         }else {
-            i = ( index.intValue() - 1 ) * 10;
+            i = ( index.intValue() - 1 );
         }
         PageRequest pr = PageRequest.of(i, 10);
         Page<Board> boards = boardRepository.searchPage(pr);
         return boards;
     }
 
-    public Page<Board> searchPageCondition(BoardSearchCondition condition, int index) {
-        int i = (index - 1) * 10;
+    public Page<Board> searchPageCondition(BoardSearchCondition condition, Integer index) {
+        int i = 0;
+        if (index.intValue() < 1) {
+            i=0;
+        }else {
+            i = ( index.intValue() - 1 );
+        }
         PageRequest pr = PageRequest.of(i, 10);
         Page<Board> boards = boardRepository.searchPageCondition(condition, pr);
         return boards;

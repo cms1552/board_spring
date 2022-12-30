@@ -8,6 +8,19 @@
   <div th:replace="~{fragment/bodyHeader}"></div>
   <div class="container">
     <h1>게시판</h1>
+
+    <div>
+      <form th:action method="post" th:object="${cond}">
+        <select th:field="*{selected}">
+          <option th:each="e : ${T(hello.board.web.DTO.BoardConditionEnum).values()}" th:value="${e.name()}" th:text="${e.value()}"></option>
+        </select>
+
+        <input type="text" th:field="*{text}" placeholder="텍스트 입력하세요."/>
+        <button type="submit">검색</button>
+      </form>
+    </div>
+
+
     <div>
       <table>
         <thead>
@@ -18,7 +31,6 @@
             <th>날짜</th>
           </tr>
         </thead>
-
         <tbody>
           <tr th:each="board : ${boards}">
             <td><span th:text="${board.id}"></span></td>
@@ -27,8 +39,39 @@
             <td><span th:text="${board.createAt}"></span></td>
           </tr>
         </tbody>
-
       </table>
+
+
+      <nav>
+        <ul class="navList" th:with="start=${(boards.number/maxPageSize)*maxPageSize + 1}, end=(${(boards.totalPages == 0) ? 1 : (start + (maxPageSize - 1) < boards.totalPages ? start + (maxPageSize - 1) : boards.totalPages)})">
+          <li th:if="${start > 1}">
+            <a th:href="@{/board(page=1)}" th:text="'<<'"></a>
+          </li>
+
+          <li th:if="${start > 1}">
+            <a th:href="@{/board(page=${start - maxPageSize})}" th:text="'<'"></a>
+          </li>
+
+          <li th:each="page: ${#numbers.sequence(start, end)}">
+            <a th:text="${page}" th:href="@{/board(page=${page - 1})}"></a>
+          </li>
+
+          <li th:if="${end < boards.totalPages}">
+            <a th:href="@{/board(page=${start + maxPageSize})}" th:text="'>'"></a>
+          </li>
+
+          <li th:if="${end < boards.totalPages}">
+            <a th:href="@{/board(page=${boards.totalPages - 1})}" th:text="'>>'"></a>
+          </li>
+        </ul>
+      </nav>
+
+<!--      <nav>-->
+<!--        <ul class="navList" th:with="start=${(boards.number / maxPageSize)*maxPageSize + 1}, end=${(boards.totalPages == 0) ? 1 : (start + ())}">-->
+<!--          <li><a></a></li>-->
+<!--          <li><a></a></li>-->
+<!--        </ul>-->
+<!--      </nav>-->
     </div>
   </div>
 </body>
