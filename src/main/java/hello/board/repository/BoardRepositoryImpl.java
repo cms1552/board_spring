@@ -1,31 +1,21 @@
 package hello.board.repository;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import hello.board.domain.Board;
-import hello.board.domain.QBoard;
-import hello.board.domain.QUser;
-import hello.board.domain.User;
 import hello.board.web.DTO.BoardSearchCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
-import java.util.Optional;
 
 import static hello.board.domain.QBoard.board;
 import static hello.board.domain.QUser.user;
-import static java.util.Optional.ofNullable;
 import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
@@ -61,7 +51,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         long offset = pageable.getOffset();
         int pageSize = pageable.getPageSize();
 
-        List<Board> boards = queryFactory
+        List<Board> contents = queryFactory
                 .select(board)
                 .from(board)
                 .leftJoin(board.user, user)
@@ -69,7 +59,15 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(boards, pageable, boards.size());
+        int size = queryFactory
+                .select(board)
+                .from(board)
+                .leftJoin(board.user, user)
+                .fetch().size();
+
+        log.info("totalCount = {}", size);
+
+        return new PageImpl<>(contents, pageable, size);
     }
 
     @Override
@@ -94,7 +92,7 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
         }
 
         //getSelected 에 따라 where절이 달라짐
-        List<Board> content = queryFactory
+        List<Board> contents = queryFactory
                 .select(board)
                 .from(board)
                 .leftJoin(board.user, user)
@@ -103,7 +101,16 @@ public class BoardRepositoryImpl implements BoardRepositoryCustom {
                 .limit(pageSize)
                 .fetch();
 
-        return new PageImpl<>(content, pageable, content.size());
+        int size = queryFactory
+                .select(board)
+                .from(board)
+                .leftJoin(board.user, user)
+                .where(ex)
+                .fetch().size();
+
+        log.info("totalCount = {}", size);
+
+        return new PageImpl<>(contents, pageable, size);
     }
 
     //    private String loginId;
