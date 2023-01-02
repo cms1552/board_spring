@@ -17,25 +17,15 @@ public class BoardService {
 
     public Page<Board> searchPageSimple(Integer index) {
         log.info("index = " + index);
-        int i = 0;
-        if (index.intValue() < 1) {
-            i=0;
-        }else {
-            i = ( index.intValue() - 1 );
-        }
-        PageRequest pr = PageRequest.of(i, 10);
+
+        PageRequest pr = PageRequest.of(index, 10);
         Page<Board> boards = boardRepository.searchPage(pr);
         return boards;
     }
 
     public Page<Board> searchPageCondition(BoardSearchCondition condition, Integer index) {
-        int i = 0;
-        if (index.intValue() < 1) {
-            i=0;
-        }else {
-            i = ( index.intValue() - 1 );
-        }
-        PageRequest pr = PageRequest.of(i, 10);
+
+        PageRequest pr = PageRequest.of(index, 10);
         Page<Board> boards = boardRepository.searchPageCondition(condition, pr);
         return boards;
     }
