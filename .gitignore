@@ -40,3 +40,6 @@ out/
 **/application.yml
 
 test/
+
+### 테스트 html, js 파일 ###
+src/main/resources/static/nuldam
