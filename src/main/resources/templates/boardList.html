@@ -38,11 +38,11 @@
           </tr>
         </thead>
         <tbody>
-          <tr th:each="board : ${boards}">
-            <td><span th:text="${board.id}"></span></td>
-            <td><span th:text="${board.title}"></span></td>
-            <td><span th:text="${board.content}"></span></td>
-            <td><span th:text="${board.createAt}"></span></td>
+          <tr style="cursor: pointer" th:each="board : ${boards}" th:onclick="|location.href='@{/board/{id}(id=${board.id})}'|">
+              <td><span th:text="${board.id}"></span></td>
+              <td><span th:text="${board.title}"></span></td>
+              <td><span th:text="${board.content}"></span></td>
+              <td><span th:text="${board.createAt}"></span></td>
           </tr>
         </tbody>
       </table>

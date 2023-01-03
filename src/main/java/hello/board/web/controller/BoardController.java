@@ -1,6 +1,7 @@
 package hello.board.web.controller;
 
 import hello.board.domain.Board;
+import hello.board.web.DTO.BoardDto;
 import hello.board.web.DTO.BoardSearchCondition;
 import hello.board.web.service.BoardService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class BoardController {
     public String boardList(@RequestParam(value = "page", required = false) Integer page, Model model) {
 
         // null or 음수
-        if (page==null || page.intValue() < 0) {
+        if (page == null || page.intValue() < 0) {
             page = 0;
         }
 
@@ -60,5 +61,31 @@ public class BoardController {
 
         log.info("Page info getTotalElements()=[{}] getTotalPages()=[{}] getNumber()=[{}] getNumberOfElements()=[{}] getSize()=[{}]", boards.getTotalElements(), boards.getTotalPages(), boards.getNumber(), boards.getNumberOfElements(), boards.getSize());
         return "boardList";
+    }
+
+    // BoardList 상세 페이지
+    @GetMapping("/{id}")
+    public String board(@PathVariable Long id, Model model) {
+
+        Board board = boardService.findById(id);
+        model.addAttribute("board", board);
+
+        return "board";
+    }
+
+    @GetMapping("/new")
+    public String boardNewForm(Model model) {
+
+        model.addAttribute("board", new BoardDto());
+
+        return "boardNewForm";
+    }
+
+    @PostMapping("/new")
+    public String boardNewForm(@ModelAttribute("board") BoardDto board, Model model) {
+
+
+
+        return "redirect:/board()";
     }
 }

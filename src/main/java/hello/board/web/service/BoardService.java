@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,5 +30,11 @@ public class BoardService {
         PageRequest pr = PageRequest.of(index, 10);
         Page<Board> boards = boardRepository.searchPageCondition(condition, pr);
         return boards;
+    }
+
+    public Board findById(Long id) {
+        Board board = boardRepository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("board doesn't exist"));
+        return board;
     }
 }
