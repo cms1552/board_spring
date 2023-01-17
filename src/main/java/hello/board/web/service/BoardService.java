@@ -9,8 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,5 +34,10 @@ public class BoardService {
         Board board = boardRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("board doesn't exist"));
         return board;
+    }
+
+    public Board createBoard(Board board) {
+        Board save = boardRepository.save(board);
+        return save;
     }
 }

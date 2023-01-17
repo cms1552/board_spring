@@ -18,13 +18,23 @@ public class UploadFile extends BaseEntity{
 
     private String original_name;
     private String stored_name;
-    private String path;
     private Integer down_count;
-    private Integer size;
-    private String ex;
-    private Boolean is_image;
+    private Long size;
+    private String ext;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private Board board;
+
+
+    public UploadFile(String originalFilename, String storeFileName, long size, String ext) {
+        this.original_name = originalFilename;
+        this.stored_name = storeFileName;
+        this.size = size;
+        this.ext = ext;
+    }
+
+    public void updateBoardId(Board board) {
+        this.board = board;
+    }
 }

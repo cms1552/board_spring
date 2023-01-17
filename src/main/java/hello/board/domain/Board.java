@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,5 +43,4 @@ public class Board extends BaseEntity{
         this.content = content;
         this.uploadFiles = uploadFiles;
     }
-
 }

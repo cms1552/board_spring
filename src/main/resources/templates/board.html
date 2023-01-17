@@ -14,7 +14,8 @@
     </div>
     <!--첨부 파일-->
 
-    <!--    <a th:if="" th:href=""></a>-->
+    <a th:each="file : *{board.getUploadFiles()}" th:if="${board.getUploadFiles()}"
+       th:href="|/board/attach/*{file.id}|" th:text="${file.getOriginal_name()}"></a>
 
 <!--    <div class="comment">-->
 <!--      -->
