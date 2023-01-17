@@ -11,9 +11,8 @@
       <li><a th:href="@{/user/join}">회원가입</a></li>
       <li><a th:if="${session.login_id eq null}" th:href="@{/user/login}">로그인</a></li>
       <li><a th:unless="${session.login_id eq null}" th:href="@{/user/logout}">로그아웃</a></li>
-      <li><a th:href="@{/}">글쓰기</a></li>
-      <li><a th:href="@{/}">글 목록</a></li>
-      <li><a th:href="@{/}">file upload</a></li>
+      <li><a th:href="@{/board/new}">글쓰기</a></li>
+      <li><a th:href="@{/board}">글 목록</a></li>
     </ul>
 
     <h2 th:text="${session.login_id} ? ${session.login_id} + '님 반갑습니다..' : _"></h2>
