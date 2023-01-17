@@ -3,20 +3,20 @@ package hello.board.web.controller;
 import hello.board.domain.User;
 import hello.board.web.DTO.UserDto;
 import hello.board.web.auth.LoginService;
+import hello.board.web.constant.BasicConstant;
 import hello.board.web.constant.SessionConstant;
 import hello.board.web.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @Slf4j
@@ -28,6 +28,8 @@ public class UserController {
     private final UserService userService;
 
     private final LoginService loginService;
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // 회원가입 폼
     @GetMapping("/join")
@@ -46,14 +48,17 @@ public class UserController {
 
         String dtoLogin_id = userDto.getLogin_id();
         String dtoPassword = userDto.getPassword();
+        String encPassword = bCryptPasswordEncoder.encode(dtoPassword);
+
+        log.info("join encode password = " + encPassword);
 
         User user = User.builder()
                 .login_id(dtoLogin_id)
-                .password(dtoPassword)
+                .password(encPassword)
                 .build();
 
         log.info("login_id = " + dtoLogin_id);
-        log.info("password = " + dtoPassword);
+        log.info("password = " + encPassword);
 
         User savedUser = userService.userSave(user);
 
@@ -73,18 +78,21 @@ public class UserController {
     // 로그인 폼
     @GetMapping("/login")
     public String loginForm(Model model) {
+
         model.addAttribute("user", new UserDto());
         return "loginForm";
     }
 
     // 로그인
     @PostMapping("/login")
-    public String login(HttpServletRequest request, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
+    public String login(HttpServletRequest request, @RequestParam(value = BasicConstant.REQUEST_URI, required = false) String originalURI, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             log.info("login exception {}",bindingResult);
             return "loginForm";
         }
+
+        //String encPassword = bCryptPasswordEncoder.encode(userDto.getPassword());
 
         User user = User.builder()
                 .login_id(userDto.getLogin_id())
@@ -98,6 +106,10 @@ public class UserController {
         HttpSession session = request.getSession();
         session.setAttribute(SessionConstant.LOGIN_ID, user.getLoginId());
 
-        return "redirect:/";
+        // original request URI 가 존재할 경우 해당 경로로 리다이렉팅
+        if (originalURI == null) {
+            return "redirect:/";
+        }
+        return "redirect:" + originalURI;
     }
 }
