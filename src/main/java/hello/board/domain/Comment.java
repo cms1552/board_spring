@@ -1,11 +1,9 @@
 package hello.board.domain;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +17,8 @@ public class Comment extends BaseEntity{
     @Column(name = "comment_id")
     private Long id;
 
+    @Lob
     private String content;
-
-    private Long group_id;
-
-    private Long group_order;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
@@ -33,14 +28,19 @@ public class Comment extends BaseEntity{
     @JoinColumn
     private Board board;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
+    private List<Comment> children = new ArrayList<>();
+
     @Builder
     @QueryProjection
-    public Comment(Long id, Board board, User user, Long group_id, Long group_order, String content) {
-        this.id = id;
+    public Comment(Comment parent, Board board, User user, String content) {
+        this.parent = parent;
         this.board = board;
         this.user = user;
-        this.group_id = group_id;
-        this.group_order = group_order;
         this.content = content;
     }
 }
