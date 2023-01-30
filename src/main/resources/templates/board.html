@@ -17,9 +17,56 @@
     <a th:each="file : *{board.getUploadFiles()}" th:if="${board.getUploadFiles()}"
        th:href="|/board/attach/*{file.id}|" th:text="${file.getOriginal_name()}"></a>
 
-<!--    <div class="comment">-->
-<!--      -->
-<!--    </div>-->
+    <div class="write-comment">
+
+      <form th:object="${comment}" th:action="@{/comment/create}" method="post">
+        <input th:disabled="${session.login_id == null} ? 'disabled'" placeholder="댓글을 작성하려면 로그인이 필요합니다." th:field="*{content}">
+        <input type="hidden" th:name="board1" th:value="${board.id}" />
+        <button th:disabled="${session.login_id == null} ? 'disabled'" type="submit">작성</button>
+      </form>
+    </div>
+
+    <div class="comments">
+      <div th:each="comment : ${comments}" th:id="'c'+${comment.id}">
+        <div><h1 th:text="${comment.content}"></h1><button th:onclick="replyToggle([[${comment.id}]])">답글</button>
+          <div class="reply-wrap displaynone">
+            <form th:object="${comment}" th:action="@{/comment/create}" method="post">
+              <input th:disabled="${session.login_id == null} ? 'disabled'" placeholder="로그인이 필요합니다." th:field="*{content}"/>
+              <input type="hidden" th:name="board1" th:value="${board.id}" />
+              <input type="hidden" th:name="parentId" th:value="${comment.id}" />
+              <button th:disabled="${session.login_id == null} ? 'disabled'" type="submit">작성</button>
+            </form>
+          </div>
+        </div>
+
+
+        <div th:each="children: ${comment.children}">
+          <h3 th:text="${children.content}"></h3>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>
+
+<script th:inline="javascript">
+</script>
+
+<script>
+  // 댓글 리스트 토글
+  function commentsToggle() {
+
+  }
+
+  // 답글 작성 폼 토글
+  function replyToggle(commentId) {
+    let comment = document.querySelector(`#c${commentId} .reply-wrap`);
+    comment.classList.toggle('displaynone');
+  }
+</script>
+
+<style>
+  .displaynone {
+    display: none;
+  }
+</style>
