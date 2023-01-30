@@ -1,15 +1,18 @@
 package hello.board.web.controller;
 
 import hello.board.domain.Board;
+import hello.board.domain.Comment;
 import hello.board.domain.UploadFile;
 import hello.board.domain.User;
 import hello.board.repository.UploadFileService;
 import hello.board.utils.FileStore;
 import hello.board.web.DTO.BoardDto;
 import hello.board.web.DTO.BoardSearchCondition;
+import hello.board.web.DTO.CommentDto;
 import hello.board.web.annotation.Auth;
 import hello.board.web.constant.SessionConstant;
 import hello.board.web.service.BoardService;
+import hello.board.web.service.CommentService;
 import hello.board.web.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +39,7 @@ public class BoardController {
 
     private final BoardService boardService;
     private final UserService userService;
-
+    private final CommentService commentService;
     private final UploadFileService uploadFileService;
     private final FileStore fileStore;
 
@@ -96,6 +99,11 @@ public class BoardController {
         List<UploadFile> uploadFiles = board.getUploadFiles();
         log.info("BoardController uploadFiles = [{}]", uploadFiles);
 
+        model.addAttribute("comment", new CommentDto());
+
+        //댓글 전달
+        List<Comment> commentsByBoardId = commentService.findCommentsByBoardAndParentIsNullOrderByCreateAtAsc(board);
+        model.addAttribute("comments", commentsByBoardId);
         return "board";
     }
 
@@ -168,7 +176,6 @@ public class BoardController {
         UrlResource resource = new UrlResource("file:" + fileStore.getFullPath(storedName));
         String encodedFileName = UriUtils.encode(originalName, StandardCharsets.UTF_8);
         String contentDisposition = "attachment; filename=\"" + encodedFileName + "\"";
-
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
