@@ -1,9 +1,12 @@
 package hello.board.web.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
 import hello.board.domain.Board;
 import hello.board.domain.Comment;
 import hello.board.domain.User;
 import hello.board.web.DTO.CommentDto;
+import hello.board.web.DTO.DeleteCommentDto;
+import hello.board.web.DTO.UpdateCommentDto;
 import hello.board.web.constant.SessionConstant;
 import hello.board.web.service.BoardService;
 import hello.board.web.service.CommentService;
@@ -26,10 +29,11 @@ public class CommentController {
     private final BoardService boardService;
     private final UserService userService;
 
+    // 댓글 추가
     @PostMapping("/create")
-    public String createComment(@SessionAttribute(name = SessionConstant.LOGIN_ID)String loginId, @ModelAttribute CommentDto commentDto, @RequestParam("board1") Long board_id, @RequestParam(value = "parentId", required = false) Long parent_id) {
+    public String createComment(@SessionAttribute(name = SessionConstant.LOGIN_ID) String loginId, @ModelAttribute CommentDto commentDto, @RequestParam("board1") Long board_id, @RequestParam(value = "parentId", required = false) Long parent_id) {
 
-        log.info("commentDto [{}]" , commentDto);
+        log.info("commentDto [{}]", commentDto);
         log.info("board_id [{}] ", board_id);
         log.info("parent_id [{}] ", parent_id);
 
@@ -47,8 +51,20 @@ public class CommentController {
         return "redirect:/board/" + board_id;
     }
 
-    @PostMapping("/delete")
-    public void deleteComment() {
+    // 댓글 수정 ajax
+    @PostMapping("/update")
+    @ResponseBody
+    public UpdateCommentDto updateComment(@RequestBody UpdateCommentDto updateCommentDto) {
+        log.info("updateCommentDto : [{}]", updateCommentDto);
+        UpdateCommentDto updateCommentDto1 = commentService.updateComment(updateCommentDto);
+        return updateCommentDto1;
+    }
 
+    // 댓글 삭제 ajax
+    @PostMapping("/delete")
+    @ResponseBody
+    public void deleteComment(@RequestBody DeleteCommentDto deleteCommentDto) {
+        log.info("commentId : [{}]", deleteCommentDto);
+        commentService.deleteComment(deleteCommentDto);
     }
 }
