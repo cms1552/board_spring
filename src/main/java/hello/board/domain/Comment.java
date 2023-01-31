@@ -2,6 +2,7 @@ package hello.board.domain;
 
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -41,6 +42,10 @@ public class Comment extends BaseEntity{
         this.parent = parent;
         this.board = board;
         this.user = user;
+        this.content = content;
+    }
+
+    public void updateCommentContent(String content) {
         this.content = content;
     }
 }
