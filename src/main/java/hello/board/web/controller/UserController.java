@@ -112,4 +112,19 @@ public class UserController {
         }
         return "redirect:" + originalURI;
     }
+
+    // 아이디 중복 체크
+    @PostMapping("/duplicateCheck")
+    @ResponseBody
+    public String loginIdDuplicateCheck(@RequestBody String loginId) {
+
+        log.info("login Id : [{}] ", loginId);
+
+        boolean result = userService.loginIdDuplicateCheck(loginId);
+        if (result) {
+            return "1";
+        } else {
+            return "0";
+        }
+    }
 }

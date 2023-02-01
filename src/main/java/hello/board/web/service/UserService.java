@@ -20,4 +20,12 @@ public class UserService {
     public User findByLoginId(String loginId) {
        return repository.findByLoginId(loginId);
     }
+
+    public boolean loginIdDuplicateCheck(String loginId) {
+        User byLoginId = repository.findByLoginId(loginId);
+        if (byLoginId == null) {
+            return true;
+        }
+        return false;
+    }
 }
