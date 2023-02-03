@@ -9,11 +9,21 @@
 
   <div class="container">
     <div class="board" th:object="${board}">
-      <h1 th:text="*{title}"></h1>
-      <p th:text="*{content}"></p>
-    </div>
-    <!--첨부 파일-->
+      <div class="title">
+        <h1 th:text="*{title}"></h1>
+      </div>
+      <div class="content">
+        <p th:text="*{content}"></p>
+      </div>
 
+      <!-- 게시물 수정, 삭제 버튼 -->
+      <div th:if="${board.user.loginId} == ${session.login_id}">
+        <a th:href="@{|/board/modify/${id}|}">수정</a>
+        <a th:href="@{|/board/delete/${id}|}">삭제</a>
+      </div>
+    </div>
+
+    <!--첨부 파일-->
     <a th:each="file : *{board.getUploadFiles()}" th:if="${board.getUploadFiles()}"
        th:href="|/board/attach/*{file.id}|" th:text="${file.getOriginal_name()}"></a>
 
@@ -112,6 +122,7 @@
       }]
     })
   }
+
   /*]]>*/
 </script>
 
