@@ -2,6 +2,7 @@ package hello.board.web.controller;
 
 import hello.board.domain.User;
 import hello.board.web.DTO.UserDto;
+import hello.board.web.DTO.UserLoginDto;
 import hello.board.web.auth.LoginService;
 import hello.board.web.constant.BasicConstant;
 import hello.board.web.constant.SessionConstant;
@@ -79,13 +80,13 @@ public class UserController {
     @GetMapping("/login")
     public String loginForm(Model model) {
 
-        model.addAttribute("user", new UserDto());
+        model.addAttribute("user", new UserLoginDto());
         return "loginForm";
     }
 
     // 로그인
     @PostMapping("/login")
-    public String login(HttpServletRequest request, @RequestParam(value = BasicConstant.REQUEST_URI, required = false) String originalURI, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
+    public String login(HttpServletRequest request, @RequestParam(value = BasicConstant.REQUEST_URI, required = false) String originalURI, @Validated @ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
             log.info("login exception {}",bindingResult);
@@ -95,12 +96,20 @@ public class UserController {
         //String encPassword = bCryptPasswordEncoder.encode(userDto.getPassword());
 
         User user = User.builder()
-                .login_id(userDto.getLogin_id())
-                .password(userDto.getPassword())
+                .login_id(userLoginDto.getLoginId())
+                .password(userLoginDto.getPassword())
                 .build();
 
+        try {
+            loginService.login(user);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errMsg", e.getMessage());
+            return "loginForm";
+        } catch (IllegalStateException e) {
+            model.addAttribute("errMsg", e.getMessage());
+            return "loginForm";
+        }
 
-        loginService.login(user);
 
         // 세션 처리 ( 공통 처리기 만들기 )
         HttpSession session = request.getSession();
