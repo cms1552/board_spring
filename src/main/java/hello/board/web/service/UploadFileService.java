@@ -1,7 +1,8 @@
-package hello.board.repository;
+package hello.board.web.service;
 
 import hello.board.domain.Board;
 import hello.board.domain.UploadFile;
+import hello.board.repository.UploadFileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class UploadFileService {
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 파일 입니다."));
 
         uploadFile.updateBoardId(board);
+    }
 
+    public void deleteUploadFile(UploadFile uploadFile) {
+        uploadFileRepository.delete(uploadFile);
     }
 }
