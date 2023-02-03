@@ -1,7 +1,8 @@
 package hello.board.utils;
 
+import hello.board.domain.Board;
 import hello.board.domain.UploadFile;
-import hello.board.repository.UploadFileService;
+import hello.board.web.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,8 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class FileStore {
+
+    private final BoardService boardService;
 
     @Value("${file.dir}")
     private String fileDir;
@@ -66,5 +69,18 @@ public class FileStore {
     private String extractExt(String originalFileName) {
         int pos = originalFileName.lastIndexOf(".");
         return originalFileName.substring(pos);
+    }
+
+    public void removeFile(String storedName) {
+        File file = new File(fileDir + storedName);
+        file.delete();
+    }
+
+    public void removeBoardFiles(Long boardId) {
+        Board board = boardService.findById(boardId);
+        List<UploadFile> uploadFiles = board.getUploadFiles();
+        for (UploadFile file : uploadFiles) {
+            removeFile(file.getStored_name());
+        }
     }
 }
