@@ -32,7 +32,7 @@ public class Board extends BaseEntity{
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UploadFile> uploadFiles = new ArrayList<>();
 
     @Builder
@@ -43,5 +43,11 @@ public class Board extends BaseEntity{
         this.title = title;
         this.content = content;
         this.uploadFiles = uploadFiles;
+    }
+
+    // 게시물 수정
+    public void updateBoard(String title, String content ) {
+        this.title = title;
+        this.content = content;
     }
 }

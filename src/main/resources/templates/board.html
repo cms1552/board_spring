@@ -9,11 +9,21 @@
 
   <div class="container">
     <div class="board" th:object="${board}">
-      <h1 th:text="*{title}"></h1>
-      <p th:text="*{content}"></p>
-    </div>
-    <!--첨부 파일-->
+      <div class="title">
+        <h1 th:text="*{title}"></h1>
+      </div>
+      <div class="content">
+        <p th:text="*{content}"></p>
+      </div>
 
+      <!-- 게시물 수정, 삭제 버튼 -->
+      <div th:if="${board.user.loginId} == ${session.login_id}">
+        <a th:href="@{|/board/modify/${id}|}">수정</a>
+        <a th:href="@{|/board/delete/${id}|}">삭제</a>
+      </div>
+    </div>
+
+    <!--첨부 파일-->
     <a th:each="file : *{board.getUploadFiles()}" th:if="${board.getUploadFiles()}"
        th:href="|/board/attach/*{file.id}|" th:text="${file.getOriginal_name()}"></a>
 
@@ -54,22 +64,11 @@
               <button th:disabled="${session.login_id == null} ? 'disabled'" type="submit">작성</button>
             </form>
           </div>
-
         </div>
 
 
-        <div th:each="children: ${comment.children}" th:id="'r'+${children.id}">
+        <div th:each="children: ${comment.children}">
           <h3 th:text="${children.content}"></h3>
-          <button th:if="${children.user.loginId} == ${session.login_id}" th:onclick="updateReplyToggle([[${children.id}]])" >수정</button>
-          <button th:if="${children.user.loginId} == ${session.login_id}" th:onclick="deleteReply([[${children.id}]])">삭제</button>
-          <div class="update-reply-form-wrap displaynone">
-            <form class="update-reply-form">
-              <textarea th:disabled="${session.login_id == null} ? 'disalbed'" th:text="${children.content}"></textarea>
-              <input type="hidden" th:value="${children.id}">
-              <input type="button" th:onclick="updateReply([[${children.id}]])" value="수정">
-              <input tpye="button" th:onclick="updateReplyToggle([[${children.id}]])" value="취소">
-            </form>
-          </div>
         </div>
       </div>
     </div>
@@ -124,49 +123,6 @@
     })
   }
 
-  // 답글 수정 메소드
-  function updateReply(commentId) {
-    let updateCommentDto = {
-      "id" : parseInt(document.querySelector(`#r${commentId} .update-reply-form input`).value),
-      "content" : document.querySelector(`#r${commentId} .update-reply-form textarea`).value,
-    }
-
-    const ajax = $.ajax({
-      type: 'post',
-      url: '/comment/update',
-      contentType:'application/json',
-      data: JSON.stringify(updateCommentDto),
-      dataType: 'json',
-      success: [(data) => {
-        console.log(data);
-        document.querySelector(`#r${commentId} h3`).innerText = updateCommentDto.content;
-      }],
-      error : [(error) => {
-        console.error(error);
-      }],
-    });
-  }
-
-  // 답글 삭제 메소드
-  function deleteReply(commentId) {
-
-    let deleteCommentDto = {
-      'id': (commentId),
-    }
-
-    $.ajax({
-      type: 'post',
-      url: '/comment/delete',
-      contentType: 'application/json',
-      data: JSON.stringify(deleteCommentDto),
-      error: [(error) => {
-        console.error(error);
-      }],
-      success: [() => {
-        document.querySelector(`#r${commentId}`).remove();
-      }]
-    })
-  }
   /*]]>*/
 </script>
 
@@ -184,11 +140,6 @@
     updateForm.classList.toggle('displaynone');
   }
 
-  // 답글 수정 폼 토글
-  function updateReplyToggle(commentId) {
-    let updateForm = document.querySelector(`#r${commentId} .update-reply-form-wrap`);
-    updateForm.classList.toggle('displaynone');
-  }
 </script>
 
 <style>

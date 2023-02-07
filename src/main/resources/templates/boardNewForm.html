@@ -12,8 +12,10 @@
       <form th:action method="post" th:object="${board}" enctype="multipart/form-data">
         <label th:for="title"></label>
         <input type="text" th:field="*{title}" />
+        <div th:errors="*{title}"></div>
 
         <textarea th:field="*{content}"></textarea>
+        <div th:errors="*{content}"></div>
 
         <input type="file" multiple="multiple" th:field="*{attachFiles}" />
 

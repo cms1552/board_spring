@@ -4,7 +4,7 @@ import hello.board.domain.Board;
 import hello.board.domain.Comment;
 import hello.board.domain.UploadFile;
 import hello.board.domain.User;
-import hello.board.repository.UploadFileService;
+import hello.board.web.service.UploadFileService;
 import hello.board.utils.FileStore;
 import hello.board.web.DTO.BoardDto;
 import hello.board.web.DTO.BoardSearchCondition;
@@ -22,6 +22,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriUtils;
@@ -120,24 +122,22 @@ public class BoardController {
 
     @Auth
     @PostMapping("/new")
-    public String boardNewForm(@SessionAttribute(name = SessionConstant.LOGIN_ID) String loginId, @ModelAttribute("board") BoardDto boardDto, Model model) throws IOException {
+    public String boardNewForm(@SessionAttribute(name = SessionConstant.LOGIN_ID) String loginId, @Validated @ModelAttribute("board") BoardDto boardDto, BindingResult bindingResult, Model model) throws IOException {
 
         log.info("boardDto = [{}] [{}] [{}] [{}]", boardDto.getTitle(), boardDto.getContent(), loginId, boardDto.getAttachFiles());
 
-        User user = userService.findByLoginId(loginId);
+        if (bindingResult.hasErrors()) {
+            log.info("Board create validate exception {}", bindingResult);
+            return "boardNewForm";
+        }
 
-//        List<MultipartFile> attachFiles = boardDto.getAttachFiles();
-//        for (MultipartFile file : attachFiles) {
-//            log.info("file info : getOriginalName() [{}], getName() [{}], getSize() [{}], ", file.getOriginalFilename(), file.getName(), file.getSize());
-//        }
-//        List<UploadFile> uploadFiles = fileStore.storeFiles(attachFiles);
+        User user = userService.findByLoginId(loginId);
 
         // board build
         Board board = Board.builder()
                 .title(boardDto.getTitle())
                 .content(boardDto.getContent())
                 .user(user)
-                //.uploadFiles(uploadFiles)
                 .build();
 
         // dto 첨부 파일 가져오기
@@ -160,7 +160,7 @@ public class BoardController {
             file.updateBoardId(savedBoard);
             uploadFileService.createUploadFile(file);
         }
-        return "redirect:/";
+        return "redirect:/board/" + savedBoard.getId().toString();
     }
 
     // 첨부파일 다운로드 API
@@ -182,4 +182,87 @@ public class BoardController {
                 .body(resource);
     }
 
+    // 게시물 수정 폼
+    @GetMapping("/modify/{id}")
+    public String boardModifyForm(@PathVariable Long id, Model model) {
+
+        // id로 title, content, attachFile 가져옴
+        Board board = boardService.findById(id);
+        log.info("board :  [{}] [{}] [{}] ", board.getId(), board.getTitle(), board.getContent());
+        model.addAttribute("board", board);
+        model.addAttribute("boardDto", new BoardDto());
+
+        return "boardModify";
+    }
+
+    // 게시물 수정
+    @PostMapping("/modify/{id}")
+    public String modifyBoard(@PathVariable Long id, @Validated @ModelAttribute BoardDto boardDto, @RequestParam(name = "deleteFile",required = false) List<Long> deleteFiles, BindingResult bindingResult, Model model) throws IOException {
+
+        log.info("deleteFiles : [{}] ", deleteFiles );
+
+        /**
+         * id : 게시물 id
+         * boardDto : 게시물 dto
+         * deleteFile : 첨부파일이 있는 게시물일 경우, 삭제 버튼 클릭 시 해당 파일 id 전달
+         * */
+
+        if (bindingResult.hasErrors()) {
+            log.info("board modify validate exception , [{}] ", bindingResult);
+            Board board = boardService.findById(id);
+            model.addAttribute("board", board);
+            return "boardModify";
+        }
+
+        boardService.updateBoard(id, boardDto);
+
+        /**
+         * 파일 수정
+         *
+         * 1. 파일 store 삭제 -> 2. 파일 db 삭제
+         * */
+        if (deleteFiles != null) {
+            deleteFiles.forEach(aLong -> {
+                UploadFile file = uploadFileService.findById(aLong);
+                fileStore.removeFile(file.getStored_name()); // 파일 삭제
+                uploadFileService.deleteUploadFile(file);
+            });
+        }
+
+        /**
+         * 파일 수정
+         *
+         * 3. 파일 추가
+         * */
+
+        List<MultipartFile> attachFiles = boardDto.getAttachFiles();
+        for (MultipartFile file : attachFiles) {
+            log.info("file info : getOriginalName() [{}], getName() [{}], getSize() [{}], ", file.getOriginalFilename(), file.getName(), file.getSize());
+        }
+
+        // 첨부파일 저장 및 UploadFiles 로 객체 변환
+        List<UploadFile> uploadFiles = fileStore.storeFiles(attachFiles);
+
+        Board board = boardService.findById(id);
+
+        for (UploadFile file : uploadFiles) {
+            file.updateBoardId(board);
+            uploadFileService.createUploadFile(file);
+        }
+
+        return "redirect:/board/" + id;
+    }
+
+    // 게시물 삭제
+    @GetMapping("/delete/{id}")
+    public String deleteBoard(@PathVariable Long id) {
+
+        /**
+         *  게시물 삭제시 첨부파일도 함께 삭제
+         * */
+        fileStore.removeBoardFiles(id);
+        boardService.deleteBoard(id);
+
+        return "redirect:/board";
+    }
 }

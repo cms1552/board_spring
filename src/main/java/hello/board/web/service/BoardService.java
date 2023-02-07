@@ -2,12 +2,14 @@ package hello.board.web.service;
 
 import hello.board.domain.Board;
 import hello.board.repository.BoardRepository;
+import hello.board.web.DTO.BoardDto;
 import hello.board.web.DTO.BoardSearchCondition;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -39,5 +41,18 @@ public class BoardService {
     public Board createBoard(Board board) {
         Board save = boardRepository.save(board);
         return save;
+    }
+
+    @Transactional
+    public void updateBoard(Long id, BoardDto boardDto) {
+        Board board = boardRepository.findById(id).orElseThrow(() -> {
+            throw new IllegalStateException("존재하지 않는 게시물 입니다.");
+        });
+
+        board.updateBoard(boardDto.getTitle(), boardDto.getContent());
+    }
+
+    public void deleteBoard(Long id) {
+        boardRepository.deleteById(id);
     }
 }

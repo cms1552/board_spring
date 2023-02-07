@@ -27,7 +27,7 @@ public class SessionLoginService implements LoginService {
     }
 
     @Override
-    public User login(User user) {
+    public User login(User user) throws IllegalArgumentException, IllegalStateException {
 
         // 아이디가 존재 하지 않을 경우
         User byLoginId = userRepository.findByLoginId(user.getLoginId());

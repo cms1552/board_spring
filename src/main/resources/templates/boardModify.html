@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div th:replace="~{fragment/bodyHeader}"></div>
+<div class="container">
+
+
+  <div>
+    <form class="board-modify-form" th:action method="post" th:object="${boardDto}" enctype="multipart/form-data">
+      <label th:for="title"></label>
+      <input class="title" type="text" th:field="*{title}">
+      <div th:errors="*{title}"></div>
+
+      <textarea class="content" th:field="*{content}"></textarea>
+      <div th:errors="*{content}"></div>
+
+      <input type="file" multiple="multiple" th:field="*{attachFiles}"/>
+
+      <button type="submit">수정</button>
+    </form>
+  </div>
+
+  <!--첨부 파일-->
+  <div th:each="file: ${board.getUploadFiles()}" th:if="${board.getUploadFiles()}" th:id="'f'+${file.id}">
+    <a th:href="|/board/attach/*{file.id}|" th:text="${file.getOriginal_name()}"></a>
+    <input type="button" value="삭제" th:onclick="deleteFile([[${file.id}]])"/>
+  </div>
+
+</div>
+</body>
+</html>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+  if([[${board.title}]] != null || [[${board.content}]] != null ) {
+    document.querySelector('input.title').value = [[${board.title}]];
+    document.querySelector('textarea.content').value = [[${board.content}]];
+  }
+
+  function deleteFile(id) {
+    const target = document.querySelector('.board-modify-form');
+    const input = document.createElement('input');
+    input.setAttribute('type', 'hidden');
+    input.name = 'deleteFile';
+    input.value = id;
+
+    target.insertAdjacentElement('afterbegin', input);
+
+    document.querySelector(`#f${id}`).classList.add('displaynone')
+    console.log('delete file id : ', id);
+  }
+  /*]]>*/
+</script>
+
+<style>
+  .displaynone {
+    display : none;
+  }
+</style>
