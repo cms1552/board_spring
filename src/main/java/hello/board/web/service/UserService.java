@@ -2,6 +2,7 @@ package hello.board.web.service;
 
 import hello.board.domain.User;
 import hello.board.repository.UserRepository;
+import hello.board.web.DTO.LoginIdCheckDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,8 @@ public class UserService {
        return repository.findByLoginId(loginId);
     }
 
-    public boolean loginIdDuplicateCheck(String loginId) {
-        User byLoginId = repository.findByLoginId(loginId);
+    public boolean loginIdDuplicateCheck(LoginIdCheckDto loginId) {
+        User byLoginId = repository.findByLoginId(loginId.getLoginId());
         if (byLoginId == null) {
             return true;
         }

@@ -1,6 +1,7 @@
 package hello.board.web.controller;
 
 import hello.board.domain.User;
+import hello.board.web.DTO.LoginIdCheckDto;
 import hello.board.web.DTO.UserDto;
 import hello.board.web.DTO.UserLoginDto;
 import hello.board.web.auth.LoginService;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 
 @Slf4j
 @Controller
@@ -125,9 +128,14 @@ public class UserController {
     // 아이디 중복 체크
     @PostMapping("/duplicateCheck")
     @ResponseBody
-    public String loginIdDuplicateCheck(@RequestBody String loginId) {
+    public String loginIdDuplicateCheck(@Validated  @RequestBody LoginIdCheckDto loginId, BindingResult bindingResult) {
 
         log.info("login Id : [{}] ", loginId);
+
+        if (bindingResult.hasErrors()) {
+            log.info(bindingResult.toString());
+            return bindingResult.getFieldError().getDefaultMessage();
+        }
 
         boolean result = userService.loginIdDuplicateCheck(loginId);
         if (result) {

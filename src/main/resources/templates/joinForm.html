@@ -119,12 +119,12 @@
 
   function idDuplicateCheck() {
     let result;
-    let loginId = document.querySelector('.modal .loginId').value;
+    let loginId = {"loginId":document.querySelector('.modal .loginId').value};
     $.ajax({
       type: 'post',
       url: '/user/duplicateCheck',
-      contentType: 'text/plain',
-      data: loginId,
+      contentType: 'application/json',
+      data: JSON.stringify(loginId),
       dataType : 'text',
       success: [(data) => {
         result = data;
@@ -134,10 +134,15 @@
           useBtnOn();
         }
         // 사용할 수 없음
-        else {
+        else if (result === "0") {
           document.querySelector('.usable').innerText = '이미 사용중인 아이디!';
           useBtnOff();
         }
+        // 유효성 검사 실패
+        else {
+          alert(result);
+        }
+
       }],
       error: [(error) => {
         console.error(error);
