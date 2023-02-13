@@ -28,6 +28,8 @@ public class User extends BaseEntity{
 
     private String password;
 
+    private String mailAddress;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Board> boards = new ArrayList<>();
 
@@ -36,9 +38,10 @@ public class User extends BaseEntity{
 
     @Builder
     @QueryProjection
-    public User(Long id, String login_id, String password) {
+    public User(Long id, String login_id, String password, String mailAddress) {
         this.id = id;
         this.loginId = login_id;
         this.password = password;
+        this.mailAddress = mailAddress;
     }
 }
