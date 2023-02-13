@@ -11,5 +11,5 @@ public interface LoginService {
     }
 
     public void logout(HttpServletRequest request);
-    public User login(User user);
+    public <T> T login(User user);
 }
