@@ -13,13 +13,25 @@
       <div>
         <label>아이디</label>
         <input class="input-loginId" disabled="disabled" type="text" th:field="*{login_id}" placeholder="아이디 입력하세요." />
-        <input type="button" value="중복확인" onclick="modal()">
+        <input type="button" value="중복확인" onclick="loginIdModal()">
       </div>
       <div th:errors="*{login_id}"></div>
 
       <label>비밀번호</label>
       <input type="text" th:field="*{password}" placeholder="비밀번호를 입력하세요." />
       <div th:errors="*{password}"></div>
+
+      <div>
+        <label>이메일</label>
+        <input type="text" th:field="*{mailAddress}" class="input-mail" placeholder="이메일 본인인증"/>
+        <input type="button" value="인증코드 받기" onclick="getAuthCode()" />
+        <div th:errors="*{mailAddress}"></div>
+      </div>
+
+      <div>
+        <input type="text" th:field="*{authCode}" class="input-auth"/>
+        <div th:errors="*{authCode}"></div>
+      </div>
 
       <button type="submit" onclick="inputDisabledToggle()">회원가입</button>
     </form>
@@ -28,13 +40,13 @@
 
 
 <!-- 중복 확인 모달 창 start -->
-<div class="modal-wrap displaynone">
+<div class="modal-wrap loginId-modal displaynone">
   <div class="modal">
     <div>
       <div>
         <input class="loginId" type="text"/>
         <input type="button" value="확인" th:onclick="idDuplicateCheck()"/>
-        <input type="button" value="취소" onclick="modal()"/>
+        <input type="button" value="취소" onclick="loginIdModal()"/>
       </div>
       <div>
         <span class="usable"></span>
@@ -78,14 +90,14 @@
 
 <script>
   // 중복확인 모달 창 노출 메소드
-  function modal() {
-    document.querySelector('.modal-wrap').classList.toggle("displaynone")
+  function loginIdModal() {
+    document.querySelector('.loginId-modal').classList.toggle("displaynone")
   }
 
   // 사용가능한 아이디 사용하기 버튼
   function useLoginId() {
     document.querySelector('input.input-loginId').value = document.querySelector('.loginId').value;
-    modal();
+    loginIdModal();
   }
 
   // 회원가입 폼 submit 하기 전에 input 의 disabled 속성 제거 (disabled 면 submit 불가)
@@ -95,13 +107,16 @@
 
   document.querySelector('.modal-wrap').addEventListener('click', (e) => {
     if (e.target.classList.contains('modal-wrap')) {
-      modal();
+      loginIdModal();
     }
   });
 </script>
 
 <script th:inline="javascript">
   /*<![CDATA[*/
+  if ([[${errMsg}]]) {
+    alert(/*[[${errMsg}]]*/);
+  }
 
   function useBtnOn() {
     const useBtn = document.querySelector('.use-btn');
@@ -149,6 +164,26 @@
       }],
     })
 
+  }
+
+  function getAuthCode() {
+    $.ajax({
+      type: 'post',
+      url: '/mail/send',
+      contentType: 'application/json',
+      data: JSON.stringify(
+        {
+          'address': document.querySelector('.input-mail').value,
+        }
+      ),
+      dataType: 'text',
+      success: [(data) => {
+        console.log('본인인증코드 : ' + data);
+      }],
+      error: [(error) => {
+        console.error(error);
+      }]
+    });
   }
 
   /*]]>*/
