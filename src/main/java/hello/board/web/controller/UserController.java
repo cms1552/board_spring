@@ -1,6 +1,7 @@
 package hello.board.web.controller;
 
 import hello.board.domain.User;
+import hello.board.utils.RedisUtil;
 import hello.board.web.DTO.LoginIdCheckDto;
 import hello.board.web.DTO.UserDto;
 import hello.board.web.DTO.UserLoginDto;
@@ -20,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
 
 @Slf4j
 @Controller
@@ -35,6 +34,8 @@ public class UserController {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private final RedisUtil redisUtil;
+
     // 회원가입 폼
     @GetMapping("/join")
     public String joinForm(Model model) {
@@ -44,14 +45,27 @@ public class UserController {
 
     // 회원가입
     @PostMapping("/join")
-    public String join(HttpServletRequest request, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult) {
+    public String join(HttpServletRequest request, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             log.info("join exception {}",bindingResult);
             return "joinForm";
         }
 
+        // 인증코드 검사
+        String data = redisUtil.getData(userDto.getMailAddress());
+        if (data == null) {
+            model.addAttribute("errMsg", "본인인증을 완료하세요!");
+            return "joinForm";
+        }
+        log.info(data);
+        if (!data.equals(userDto.getAuthCode())) {
+            model.addAttribute("errMsg", "인증코드가 맞지 않습니다!");
+            return "joinForm";
+        }
+
         String dtoLogin_id = userDto.getLogin_id();
         String dtoPassword = userDto.getPassword();
+        String dtoMailAddress = userDto.getMailAddress();
         String encPassword = bCryptPasswordEncoder.encode(dtoPassword);
 
         log.info("join encode password = " + encPassword);
@@ -59,6 +73,7 @@ public class UserController {
         User user = User.builder()
                 .login_id(dtoLogin_id)
                 .password(encPassword)
+                .mailAddress(dtoMailAddress)
                 .build();
 
         log.info("login_id = " + dtoLogin_id);
@@ -66,6 +81,7 @@ public class UserController {
 
         User savedUser = userService.userSave(user);
 
+        // 세션 로그인 서비스 : 세션 추가
         HttpSession session = request.getSession();
         session.setAttribute(SessionConstant.LOGIN_ID, dtoLogin_id);
 
@@ -87,16 +103,14 @@ public class UserController {
         return "loginForm";
     }
 
-    // 로그인
+    // 세션 로그인
     @PostMapping("/login")
-    public String login(HttpServletRequest request, @RequestParam(value = BasicConstant.REQUEST_URI, required = false) String originalURI, @Validated @ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, Model model) {
+    public String login(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = BasicConstant.REQUEST_URI, required = false) String originalURI, @Validated @ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
             log.info("login exception {}",bindingResult);
             return "loginForm";
         }
-
-        //String encPassword = bCryptPasswordEncoder.encode(userDto.getPassword());
 
         User user = User.builder()
                 .login_id(userLoginDto.getLoginId())
@@ -114,7 +128,7 @@ public class UserController {
         }
 
 
-        // 세션 처리 ( 공통 처리기 만들기 )
+        // 세션 로그인 세션 처리 ( 공통 처리기 만들기 )
         HttpSession session = request.getSession();
         session.setAttribute(SessionConstant.LOGIN_ID, user.getLoginId());
 
@@ -124,12 +138,10 @@ public class UserController {
         }
         return "redirect:" + originalURI;
     }
-
     // 아이디 중복 체크
     @PostMapping("/duplicateCheck")
     @ResponseBody
     public String loginIdDuplicateCheck(@Validated  @RequestBody LoginIdCheckDto loginId, BindingResult bindingResult) {
-
         log.info("login Id : [{}] ", loginId);
 
         if (bindingResult.hasErrors()) {
