@@ -1,40 +1,42 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<style>
-  .navList {
-    display: flex;
-    list-style: none;
-  }
-</style>
-<body>
-  <div th:replace="~{fragment/bodyHeader}"></div>
-  <div class="container">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/default"
+      lang="en">
+
+<div layout:fragment="content" class="container">
+  <div>
     <h1>게시판</h1>
 
     <div>
       <form th:action method="post" th:object="${cond}">
-        <select th:field="*{selected}">
-          <option th:each="e : ${T(hello.board.web.DTO.BoardConditionEnum).values()}" th:value="${e.name()}" th:text="${e.value()}"></option>
-        </select>
+        <div class="mb-3 row">
+          <div class="col-1">
+            <select th:field="*{selected}" class="form-control text-center">
+              <option th:each="e : ${T(hello.board.web.DTO.BoardConditionEnum).values()}" th:value="${e.name()}" th:text="${e.value()}"></option>
+            </select>
+          </div>
 
-        <input type="text" th:field="*{text}" placeholder="텍스트 입력하세요."/>
-        <button type="submit">검색</button>
+          <div class="col-4">
+            <input type="text" th:field="*{text}" class="form-control" placeholder="텍스트 입력하세요."/>
+          </div>
+
+          <div class="col-1">
+            <button type="submit" class="btn btn-primary">검색</button>
+          </div>
+        </div>
       </form>
     </div>
 
 
     <div>
-      <table>
+      <table class="table table-hover">
         <thead>
           <tr>
-            <th>번호</th>
-            <th>제목</th>
-            <th>작성자</th>
-            <th>날짜</th>
+            <th scope="col">번호</th>
+            <th scope="col">제목</th>
+            <th scope="col">작성자</th>
+            <th scope="col">날짜</th>
           </tr>
         </thead>
         <tbody>
@@ -49,18 +51,18 @@
 
       <nav th:with="maxPageSize=${session.MaxPageSize}, totalPageCount=${(boards.getTotalElements() % boards.getSize() == 0) ? boards.getTotalElements() / boards.getSize() : (boards.getTotalElements() / boards.getSize() + 1) }">
         <!-- 현재 페이지 <= maxPageSize -->
-        <ul class="navList" th:with="start=${(boards.getNumber()/maxPageSize)*maxPageSize}, end=${(start + maxPageSize) < boards.getTotalPages() ? (start + maxPageSize - 1) : totalPageCount - 1}" th:if="${boards.number < maxPageSize -1}">
+        <ul class="pagination" th:with="start=${(boards.getNumber()/maxPageSize)*maxPageSize}, end=${(start + maxPageSize) < boards.getTotalPages() ? (start + maxPageSize - 1) : totalPageCount - 1}" th:if="${boards.number < maxPageSize -1}">
 
-          <li th:if="${start > 1}">
-            <a th:href="@{/board(page=0)}"><<</a>
+          <li class="page-item" th:if="${start > 1}">
+            <a class="page-link" th:href="@{/board(page=0)}"><<</a>
           </li>
 
-          <li th:each="page : ${#numbers.sequence(start, end)}">
-            <a th:text="${page}" th:href="@{/board(page=${page})}"></a>
+          <li class="page-item" th:each="page : ${#numbers.sequence(start, end)}">
+            <a class="page-link" th:text="${page}" th:href="@{/board(page=${page})}"></a>
           </li>
 
-          <li th:if="${end < totalPageCount}">
-            <a th:href="@{/board(page=${totalPageCount - 1})}">>></a>
+          <li class="page-item" th:if="${end < totalPageCount}">
+            <a class="page-link" th:href="@{/board(page=${totalPageCount - 1})}">>></a>
           </li>
 
         </ul>
@@ -68,18 +70,18 @@
 
 
         <!-- else -->
-        <ul class="navList" th:with="start=${boards.number - 2}, end=${(boards.number + 2) < totalPageCount ? boards.number + 2 : totalPageCount - 1 }" th:unless="${boards.number < maxPageSize - 1}">
+        <ul class="pagination" th:with="start=${boards.number - 2}, end=${(boards.number + 2) < totalPageCount ? boards.number + 2 : totalPageCount - 1 }" th:unless="${boards.number < maxPageSize - 1}">
 
-          <li th:if="${start > 1}">
-            <a th:href="@{/board(page=0)}"><<</a>
+          <li class="page-item" th:if="${start > 1}">
+            <a class="page-link" th:href="@{/board(page=0)}"><<</a>
           </li>
 
-          <li th:each="page : ${#numbers.sequence(start, end)}">
-            <a th:text="${page}" th:href="@{/board(page=${page})}"></a>
+          <li class="page-item" th:each="page : ${#numbers.sequence(start, end)}">
+            <a class="page-link" th:text="${page}" th:href="@{/board(page=${page})}"></a>
           </li>
 
-          <li th:if="${end < totalPageCount - 1}">
-            <a th:href="@{/board(page=${totalPageCount - 1})}">>></a>
+          <li class="page-item" th:if="${end < totalPageCount - 1}">
+            <a class="page-link" th:href="@{/board(page=${totalPageCount - 1})}">>></a>
           </li>
 
         </ul>
@@ -88,5 +90,5 @@
 
     </div>
   </div>
-</body>
+</div>
 </html>

@@ -1,63 +1,105 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>User Join</title>
-</head>
-<body>
-  <div class="header" th:replace="~{fragment/bodyHeader}"></div>
-  <div class="container">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/default"
+      lang="en">
+
+<div layout:fragment="content" class="container">
+
+  <div class="">
     <h1>회원가입</h1>
     <form th:action method="post" th:object="${user}">
 
-      <div>
-        <label>아이디</label>
-        <input class="input-loginId" disabled="disabled" type="text" th:field="*{login_id}" placeholder="아이디 입력하세요." />
-        <input type="button" value="중복확인" onclick="loginIdModal()">
+      <div class="mb-3 row">
+
+        <label th:for="*{login_id}" class="form-label">아이디</label>
+
+        <div class="col-10">
+          <input class="input-loginId form-control" disabled="disabled" type="text" th:field="*{login_id}" required placeholder="아이디 입력하세요." />
+        </div>
+
+        <div class="col-2">
+          <input type="button" value="중복확인" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal">
+        </div>
+
+        <div th:errors="*{login_id}"></div>
       </div>
-      <div th:errors="*{login_id}"></div>
 
-      <label>비밀번호</label>
-      <input type="text" th:field="*{password}" placeholder="비밀번호를 입력하세요." />
-      <div th:errors="*{password}"></div>
 
-      <div>
-        <label>이메일</label>
-        <input type="text" th:field="*{mailAddress}" class="input-mail" placeholder="이메일 본인인증"/>
-        <input type="button" value="인증코드 받기" onclick="getAuthCode()" />
+      <div class="mb-3 row">
+
+        <label th:for="*{password}" class="form-label">비밀번호</label>
+        <div class="col">
+          <input type="text" th:field="*{password}" class="form-control" required placeholder="비밀번호를 입력하세요." />
+        </div>
+
+        <div th:errors="*{password}"></div>
+      </div>
+
+      <div class="mb-3 row">
+
+        <label th:for="*{mailAddress}" class="form-label">이메일</label>
+        <div class="col-10">
+          <input type="text" th:field="*{mailAddress}" class="input-mail form-control" required placeholder="이메일 본인인증"/>
+        </div>
+
+        <div class="col-2">
+          <input type="button" value="인증코드 받기" class="btn btn-secondary" onclick="getAuthCode()" />
+        </div>
+
         <div th:errors="*{mailAddress}"></div>
       </div>
 
-      <div>
-        <input type="text" th:field="*{authCode}" class="input-auth"/>
+      <div class="mb-3 row">
+
+        <label th:for="*{authCode}" class="form-label">인증코드</label>
+        <div class="col">
+          <input type="text" th:field="*{authCode}" required class="input-auth form-control"/>
+        </div>
+
         <div th:errors="*{authCode}"></div>
       </div>
 
-      <button type="submit" onclick="inputDisabledToggle()">회원가입</button>
+      <div class="mb-3 row">
+        <span id="auth-expire" class="text-danger"></span>
+      </div>
+
+
+      <button type="submit" class="btn btn-primary" onclick="inputDisabledToggle()">회원가입</button>
     </form>
   </div>
-</body>
 
 
 <!-- 중복 확인 모달 창 start -->
-<div class="modal-wrap loginId-modal displaynone">
-  <div class="modal">
-    <div>
-      <div>
-        <input class="loginId" type="text"/>
-        <input type="button" value="확인" th:onclick="idDuplicateCheck()"/>
-        <input type="button" value="취소" onclick="loginIdModal()"/>
+<div class="modal modal-wrap loginId-modal" id="modal" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">아이디 중복확인</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div>
-        <span class="usable"></span>
-      </div>
-      <div class="displaynone use-btn">
-        <input type="button" value="사용하기" onclick="useLoginId()"/>
+      <div class="modal-body">
+        <!-- 입력란 -->
+        <div class="mb-3 row">
+          <div class="col-10">
+            <input class="loginId form-control" type="text" />
+          </div>
+          <div class="col-2">
+            <input type="button" class="btn btn-secondary" value="확인" onclick="idDuplicateCheck()"/>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <span class="usable"></span>
+        </div>
+        <div class="mb-3 row">
+          <input type="button" value="사용하기" class="btn btn-secondary use-btn displaynone" onclick="useLoginId()" />
+        </div>
       </div>
     </div>
   </div>
 </div>
 <!-- 중복 확인 모달 창 end -->
+</div>
 </html>
 
 <style>
@@ -65,39 +107,36 @@
     display: none;
   }
 
-  .modal-wrap {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-  }
+  /*.modal-wrap {*/
+  /*  position: absolute;*/
+  /*  top: 0;*/
+  /*  left: 0;*/
+  /*  width: 100%;*/
+  /*  height: 100vh;*/
+  /*  background-color: rgba(0, 0, 0, 0.4);*/
+  /*}*/
 
-  .modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    width: 400px;
-    height: 600px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-  }
+  /*.modal {*/
+  /*  position: absolute;*/
+  /*  top: 50%;*/
+  /*  left: 50%;*/
+  /*  transform: translateX(-50%) translateY(-50%);*/
+  /*  width: 400px;*/
+  /*  height: 600px;*/
+  /*  display: flex;*/
+  /*  justify-content: center;*/
+  /*  align-items: center;*/
+  /*  background-color: white;*/
+  /*}*/
 </style>
 
 <script>
-  // 중복확인 모달 창 노출 메소드
-  function loginIdModal() {
-    document.querySelector('.loginId-modal').classList.toggle("displaynone")
-  }
+  let myModal = new bootstrap.Modal(document.getElementById('modal'),)
 
   // 사용가능한 아이디 사용하기 버튼
   function useLoginId() {
     document.querySelector('input.input-loginId').value = document.querySelector('.loginId').value;
-    loginIdModal();
+    closeModal();
   }
 
   // 회원가입 폼 submit 하기 전에 input 의 disabled 속성 제거 (disabled 면 submit 불가)
@@ -105,16 +144,24 @@
     document.querySelector('.input-loginId').removeAttribute('disabled');
   }
 
-  document.querySelector('.modal-wrap').addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal-wrap')) {
-      loginIdModal();
-    }
-  });
+  // 모달창 닫기
+  function closeModal() {
+    // const modal = document.getElementById('modal');
+    // modal.classList.remove('show');
+    // modal.removeAttribute('role');
+    // modal.style.display = 'none';
+    // const body = document.querySelector('body');
+    // body.removeAttribute('class');
+    // body.removeAttribute('style');
+    myModal.hide();
+  }
+
 </script>
 
 <script th:inline="javascript">
   /*<![CDATA[*/
   if ([[${errMsg}]]) {
+    console.log(/*[[${errMsg}]]*/);
     alert(/*[[${errMsg}]]*/);
   }
 
@@ -167,6 +214,14 @@
   }
 
   function getAuthCode() {
+    let regEmail = /^([0-9a-zA-Z_\.-]+)@([0-9a-zA-Z_-]+)(\.[0-9a-zA-Z_-]+){1,2}$/;
+
+    // 이메일 주소 null 체크
+    if (!regEmail.test(document.querySelector('.input-mail').value)) {
+      alert('이메일 형식이 아닙니다.');
+      return;
+    }
+
     $.ajax({
       type: 'post',
       url: '/mail/send',
@@ -179,11 +234,50 @@
       dataType: 'text',
       success: [(data) => {
         console.log('본인인증코드 : ' + data);
+        a();
+      }],
+      error: [(error) => {
+        alert(error.responseText);
+      }]
+    });
+  }
+
+  let b;
+  function a() {
+    b = setInterval(getAuthCodeExpire, 1000);
+  }
+
+  function getAuthCodeExpire() {
+    $.ajax({
+      type: 'get',
+      url: '/user/authcode/expire?key='+document.getElementById("mailAddress").value,
+      dataType: 'text',
+      success: [(result) => {
+        // 5분이 지나서 key 가 존재하지 않을 경우
+        if (result == -2) {
+          // setInterval 제거, 시간 영역 제거
+          let a = clearInterval(b);
+          document.getElementById('auth-expire').innerText = "";
+        }
+        else {
+          // 분 단위로 변경 후 노출
+          const span = document.getElementById('auth-expire');
+          span.innerText = time(result);
+
+        }
       }],
       error: [(error) => {
         console.error(error);
-      }]
-    });
+      }],
+    })
+  }
+
+  // 초 -> 시간:분:초 변환
+  function time(seconds) {
+    //let hour = parseInt(seconds/3600) < 10 ? '0'+ parseInt(seconds/3600) : parseInt(seconds/3600);
+    let min = parseInt((seconds%3600)/60) < 10 ? '0'+ parseInt((seconds%3600)/60) : parseInt((seconds%3600)/60);
+    let sec = seconds % 60 < 10 ? '0'+seconds % 60 : seconds % 60;
+    return min+":" + sec;
   }
 
   /*]]>*/

@@ -1,25 +1,30 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
-  <div th:replace="~{fragment/bodyHeader}"></div>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/default"
+      lang="en">
 
-  <div class="container">
+<div layout:fragment="content" class="container-md">
+  <div>
     <div class="board" th:object="${board}">
       <div class="title">
         <h1 th:text="*{title}"></h1>
+        <div class="mt-2 mb-2">
+          <span>작성자 : </span>
+          <span class="" th:text="*{user.loginId}"></span>
+          |
+          <span class="" th:text="*{createAt}"></span>
+        </div>
       </div>
-      <div class="content">
+
+      <div class="content rounded-3 bg-light p-4">
         <p th:text="*{content}"></p>
       </div>
 
       <!-- 게시물 수정, 삭제 버튼 -->
       <div th:if="${board.user.loginId} == ${session.login_id}">
-        <a th:href="@{|/board/modify/${id}|}">수정</a>
-        <a th:href="@{|/board/delete/${id}|}">삭제</a>
+        <a class="btn btn-secondary" th:href="@{|/board/modify/${id}|}">수정</a>
+        <a class="btn btn-secondary" th:href="@{|/board/delete/${id}|}">삭제</a>
       </div>
     </div>
 
@@ -30,19 +35,26 @@
     <div class="write-comment">
 
       <form th:object="${comment}" th:action="@{/comment/create}" method="post">
-        <textarea th:disabled="${session.login_id == null} ? 'disabled'" placeholder="댓글을 작성하려면 로그인이 필요합니다." th:field="*{content}"></textarea>
-        <input type="hidden" th:name="board1" th:value="${board.id}" />
-        <button th:disabled="${session.login_id == null} ? 'disabled'" type="submit">작성</button>
+        <textarea class="form-control" th:disabled="${session.login_id == null} ? 'disabled'" placeholder="댓글을 작성하려면 로그인이 필요합니다." th:field="*{content}"></textarea>
+        <input type="hidden" th:name="board1" required th:value="${board.id}" />
+        <button class="btn btn-primary" th:disabled="${session.login_id == null} ? 'disabled'" type="submit">작성</button>
       </form>
     </div>
 
-    <div class="comments">
-      <div th:each="comment : ${comments}" th:id="'c'+${comment.id}">
+    <div class="comments mt-4 mb-4">
+      <div class="rounded-3 bg-light mt-4 mb-4 p-2" th:each="comment : ${comments}" th:id="'c'+${comment.id}">
         <div>
-          <h1 th:text="${comment.content}"></h1>
-          <button th:onclick="replyToggle([[${comment.id}]])">답글</button>
-          <button th:if="${comment.user.loginId} == ${session.login_id}" th:onclick="updateCommentToggle([[${comment.id}]])">수정</button>
-          <button th:if="${comment.user.loginId} == ${session.login_id}" th:onclick="deleteComment([[${comment.id}]])">삭제</button>
+          <div>
+            <span>작성자 : </span>
+            <a th:text="${comment.user.loginId}"></a>
+            |
+            <span th:text="${comment.user.createAt}"></span>
+          </div>
+
+          <p th:text="${comment.content}"></p>
+          <button class="btn btn-secondary" th:onclick="replyToggle([[${comment.id}]])">답글</button>
+          <button class="btn btn-secondary" th:if="${comment.user.loginId} == ${session.login_id}" th:onclick="updateCommentToggle([[${comment.id}]])">수정</button>
+          <button class="btn btn-secondary" th:if="${comment.user.loginId} == ${session.login_id}" th:onclick="deleteComment([[${comment.id}]])">삭제</button>
 
           <div class="update-form-wrap displaynone">
             <form class="update-form">
@@ -50,30 +62,52 @@
               </textarea>
               <input type="hidden" th:name="commentId" th:value="${comment.id}">
               <div>
-                <input type="button" value="수정" th:onclick="updateComment([[${comment.id}]])">
-                <input type="button" value="취소" th:onclick="updateCommentToggle([[${comment.id}]])">
+                <input class="btn btn-secondary" type="button" value="수정" th:onclick="updateComment([[${comment.id}]])">
+                <input class="btn btn-secondary" type="button" value="취소" th:onclick="updateCommentToggle([[${comment.id}]])">
               </div>
             </form>
           </div>
 
           <div class="reply-wrap displaynone">
             <form th:object="${comment}" th:action="@{/comment/create}" method="post">
-              <input th:disabled="${session.login_id == null} ? 'disabled'" placeholder="로그인이 필요합니다." th:field="*{content}"/>
+              <input class="form-control" th:disabled="${session.login_id == null} ? 'disabled'" placeholder="로그인이 필요합니다." th:field="*{content}"/>
               <input type="hidden" th:name="board1" th:value="${board.id}" />
               <input type="hidden" th:name="parentId" th:value="${comment.id}" />
-              <button th:disabled="${session.login_id == null} ? 'disabled'" type="submit">작성</button>
+              <button class="btn btn-outline-dark" th:disabled="${session.login_id == null} ? 'disabled'" type="submit">작성</button>
             </form>
           </div>
         </div>
 
 
-        <div th:each="children: ${comment.children}">
-          <h3 th:text="${children.content}"></h3>
+        <div class="bg-white rounded-3 ms-4 mt-4 mb-4 p-2" th:each="children: ${comment.children}" th:id="'c'+${children.id}">
+          <div>
+            <span>작성자 : </span>
+            <span th:text="${children.user.loginId}"></span>
+            |
+            <span th:text="${children.createAt}"></span>
+          </div>
+          <p th:text="${children.content}"></p>
+          <button class="btn btn-secondary" th:if="${children.user.loginId} == ${session.login_id}" th:onclick="replyUpdateCommentToggle([[${children.id}]])">수정</button>
+          <button class="btn btn-secondary" th:if="${children.user.loginId} == ${session.login_id}" th:onclick="deleteComment([[${children.id}]])">삭제</button>
+
+          <div class="reply-update-form-wrap displaynone">
+            <form class="update-form">
+              <textarea th:disabled="${session.login_id == null} ? 'disabled'" th:text="${children.content}">
+              </textarea>
+              <input type="hidden" th:name="commentId" th:value="${children.id}">
+              <div>
+                <input class="btn btn-secondary" type="button" value="수정" th:onclick="updateComment([[${children.id}]])">
+                <input class="btn btn-secondary" type="button" value="취소" th:onclick="updateCommentToggle([[${children.id}]])">
+              </div>
+            </form>
+          </div>
+
         </div>
       </div>
     </div>
+
   </div>
-</body>
+</div>
 </html>
 
 <script th:inline="javascript">
@@ -94,7 +128,7 @@
       dataType: 'json',
       success: [(data) => {
         console.log(data);
-        document.querySelector(`#c${commentId} h1`).innerText = updateCommentDto.content;
+        document.querySelector(`#c${commentId} p`).innerText = updateCommentDto.content;
       }],
       error : [(error) => {
         console.error(error);
@@ -127,7 +161,6 @@
 </script>
 
 <script>
-
   // 답글 작성 폼 토글
   function replyToggle(commentId) {
     let comment = document.querySelector(`#c${commentId} .reply-wrap`);
@@ -140,6 +173,11 @@
     updateForm.classList.toggle('displaynone');
   }
 
+  // 답글 수정 폼 토글
+  function replyUpdateCommentToggle(commentId) {
+    let replyUpdateForm = document.querySelector(`#c${commentId} .reply-update-form-wrap`);
+    replyUpdateForm.classList.toggle('displaynone');
+  }
 </script>
 
 <style>
