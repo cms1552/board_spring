@@ -47,7 +47,7 @@ public class UserController {
     @PostMapping("/join")
     public String join(HttpServletRequest request, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            log.info("join exception {}",bindingResult);
+            log.info("join exception {}", bindingResult);
             return "joinForm";
         }
 
@@ -108,7 +108,7 @@ public class UserController {
     public String login(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = BasicConstant.REQUEST_URI, required = false) String originalURI, @Validated @ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
-            log.info("login exception {}",bindingResult);
+            log.info("login exception {}", bindingResult);
             return "loginForm";
         }
 
@@ -141,7 +141,7 @@ public class UserController {
     // 아이디 중복 체크
     @PostMapping("/duplicateCheck")
     @ResponseBody
-    public String loginIdDuplicateCheck(@Validated  @RequestBody LoginIdCheckDto loginId, BindingResult bindingResult) {
+    public String loginIdDuplicateCheck(@Validated @RequestBody LoginIdCheckDto loginId, BindingResult bindingResult) {
         log.info("login Id : [{}] ", loginId);
 
         if (bindingResult.hasErrors()) {
@@ -155,5 +155,12 @@ public class UserController {
         } else {
             return "0";
         }
+    }
+
+    @GetMapping("/authcode/expire")
+    @ResponseBody
+    public Long getAuthCodeExpire(@RequestParam String key) {
+        Long expire = redisUtil.getExpire(key);
+        return expire;
     }
 }
