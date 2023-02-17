@@ -3,10 +3,12 @@ package hello.board.web.service;
 import hello.board.web.DTO.MailDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailParseException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
 import java.util.Random;
 
 @Service
@@ -18,7 +20,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String from;
 
-    public String sendSimpleMessage(MailDto mailDto) {
+    public String sendSimpleMessage(MailDto mailDto) throws MailParseException, MailSendException, MailAuthenticationException {
         // 인증코드 생성
         getRandomNum();
 
