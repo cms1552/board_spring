@@ -35,4 +35,8 @@ public class RedisUtil {
     public void deleteDate(String key) {
         redisTemplate.delete(key);
     }
+
+    public Long getExpire(String key) {
+        return redisTemplate.getExpire(key);
+    }
 }
