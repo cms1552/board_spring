@@ -53,6 +53,10 @@ dependencies {
 
     // mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    // 타임리프 레이아웃 기능
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 }
 
 tasks.named('test') {
