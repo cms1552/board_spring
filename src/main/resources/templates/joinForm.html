@@ -8,7 +8,7 @@
 
   <div class="">
     <h1>회원가입</h1>
-    <form th:action method="post" th:object="${user}">
+    <form th:action method="post" name="joinForm" th:object="${user}">
 
       <div class="mb-3 row">
 
@@ -22,7 +22,7 @@
           <input type="button" value="중복확인" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal">
         </div>
 
-        <div th:errors="*{login_id}"></div>
+        <div>아이디는 영어 소문자와 숫자만 사용하여 4~20자리</div>
       </div>
 
 
@@ -30,10 +30,13 @@
 
         <label th:for="*{password}" class="form-label">비밀번호</label>
         <div class="col">
-          <input type="text" th:field="*{password}" class="form-control" required placeholder="비밀번호를 입력하세요." />
+          <input type="text" th:field="*{password}" class="input-password form-control" required placeholder="비밀번호를 입력하세요." />
         </div>
 
-        <div th:errors="*{password}"></div>
+        <div>
+          <span>비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다.</span>
+        </div>
+
       </div>
 
       <div class="mb-3 row">
@@ -65,7 +68,7 @@
       </div>
 
 
-      <button type="submit" class="btn btn-primary" onclick="inputDisabledToggle()">회원가입</button>
+      <input type="button" value="회원가입" class="btn btn-primary" onclick="inputDisabledToggle()"></input>
     </form>
   </div>
 
@@ -141,7 +144,11 @@
 
   // 회원가입 폼 submit 하기 전에 input 의 disabled 속성 제거 (disabled 면 submit 불가)
   function inputDisabledToggle() {
+    const result = validCheck();
     document.querySelector('.input-loginId').removeAttribute('disabled');
+    if (result) {
+      document.joinForm.submit();
+    }
   }
 
   // 모달창 닫기
@@ -156,6 +163,30 @@
     myModal.hide();
   }
 
+  // 클라이언트 단 유효성 검사
+  function validCheck() {
+    const loginIdReg = /^[a-z0-9]{4,20}$/;
+    const passwordReg = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,16}$/;
+    const emailReg = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
+
+    // 아이디
+    if (!document.querySelector('.input-loginId').value.match(loginIdReg)) {
+      alert('아이디는 영어 소문자와 숫자만 사용하여 4~20자리 입니다.');
+      return false;
+    }
+    // 패스워드
+    if (!document.querySelector('.input-password').value.match(passwordReg)) {
+      alert('비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다.');
+      return false;
+    }
+
+    // 이메일
+    if (!document.querySelector('.input-mail').value.match(emailReg)) {
+      alert('이메일 형식이 올바르지 않습니다.');
+      return false;
+    }
+    return true;
+  }
 </script>
 
 <script th:inline="javascript">
@@ -163,6 +194,13 @@
   if ([[${errMsg}]]) {
     console.log(/*[[${errMsg}]]*/);
     alert(/*[[${errMsg}]]*/);
+  }
+
+  /* 유효성 bindingResult field error */
+  if ([[${bindingResult}]]) {
+    const err = /*[[${bindingResult}]]*/;
+    console.log(err.defaultMessage);
+    alert(err.defaultMessage);
   }
 
   function useBtnOn() {
