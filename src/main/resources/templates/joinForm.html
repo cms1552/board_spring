@@ -40,6 +40,13 @@
       </div>
 
       <div class="mb-3 row">
+        <label th:for="*{passwordCheck}" class="form-label">비밀번호 확인</label>
+        <div class="col">
+          <input type="text" th:field="*{passwordCheck}" class="input-passwordCheck form-control" required />
+        </div>
+      </div>
+
+      <div class="mb-3 row">
 
         <label th:for="*{mailAddress}" class="form-label">이메일</label>
         <div class="col-10">
@@ -183,6 +190,12 @@
     // 이메일
     if (!document.querySelector('.input-mail').value.match(emailReg)) {
       alert('이메일 형식이 올바르지 않습니다.');
+      return false;
+    }
+
+    // 비밀번호 == 비밀번호 확인
+    if (document.querySelector('.input-password').value != document.querySelector('.input-passwordCheck').value) {
+      alert('비밀번호가 맞지 않습니다.');
       return false;
     }
     return true;

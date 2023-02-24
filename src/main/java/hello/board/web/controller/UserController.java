@@ -56,6 +56,13 @@ public class UserController {
             model.addAttribute("bindingResult", bindingResult.getFieldError());
             return "joinForm";
         }
+        // 비밀번호 확인
+        if (!userDto.getPassword().equals(userDto.getPasswordCheck())) {
+            log.info("비밀번호가 맞지 않습니다.");
+            bindingResult.addError(new ObjectError("userDto", "비밀번호가 맞지 않습니다."));
+            model.addAttribute("bindingResult", bindingResult.getGlobalError());
+            return "joinForm";
+        }
 
         // 인증코드 검사
         String data = redisUtil.getData(userDto.getMailAddress());
