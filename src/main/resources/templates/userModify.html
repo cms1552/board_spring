@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout/default"
+      lang="en">
+
+<div layout:fragment="content" class="container">
+  <div>
+    <h1>정보수정</h1>
+
+    <form th:action method="post" name="modifyForm" th:object="${userDto1}">
+      <input type="hidden" class="input-loginId" th:field="*{loginId}"/>
+
+      <div class="mb-3 row">
+
+        <label th:for="*{password}" class="form-label">비밀번호</label>
+        <div class="col">
+          <input type="text" th:field="*{password}" class="input-password form-control" required placeholder="비밀번호를 입력하세요." />
+        </div>
+
+        <div>비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다.</div>
+      </div>
+
+      <div class="mb-3 row">
+        <label th:for="*{passwordCheck}" class="form-label">비밀번호 확인</label>
+        <div class="col">
+          <input type="text" th:field="*{passwordCheck}" class="input-passwordCheck form-control" required/>
+        </div>
+      </div>
+
+      <div class="mb-3 row">
+
+        <label th:for="*{mailAddress}" class="form-label">이메일</label>
+        <div class="col">
+          <input type="text" th:field="*{mailAddress}" class="input-mail form-control" required />
+        </div>
+
+        <div th:errors="*{mailAddress}"></div>
+      </div>
+
+      <input type="button" value="수정" class="btn btn-primary" onclick="modifySubmit()"/>
+    </form>
+
+  </div>
+</div>
+</html>
+
+<script th:inline="javascript">
+  /*<![CDATA[*/
+
+  if (/*[[${userDto2}]]*/) {
+    const address = /*[[${userDto2}]]*/
+      console.log('mailAddress : ' + address.mailAddress);
+    console.log('loginId : ' + address.loginId);
+      document.querySelector('.input-mail').setAttribute('value', address.mailAddress);
+    document.querySelector('.input-loginId').setAttribute('value', address.loginId)
+  }
+
+  /* 유효성 bindingResult field error */
+  if ([[${bindingResult}]]) {
+    const err = /*[[${bindingResult}]]*/;
+    console.log(err.defaultMessage);
+    alert(err.defaultMessage);
+  }
+
+  /*]]>*/
+</script>
+
+<script>
+  function validCheck() {
+    //유효성 검사
+    const passwordReg = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,16}$/;
+    const emailReg = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
+
+    // 패스워드
+    if (!document.querySelector('.input-password').value.match(passwordReg)) {
+      alert('비밀번호는 8~16자리수여야 합니다. 영문 대소문자, 숫자, 특수문자를 1개 이상 포함해야 합니다.');
+      return false;
+    }
+
+    // 이메일
+    if (!document.querySelector('.input-mail').value.match(emailReg)) {
+      alert('이메일 형식이 올바르지 않습니다.');
+      return false;
+    }
+
+    // 비밀번호 == 비밀번호 확인
+    if (document.querySelector('.input-password').value != document.querySelector('.input-passwordCheck').value) {
+      alert('비밀번호가 맞지 않습니다.');
+      return false;
+    }
+
+    return true;
+  }
+
+  function modifySubmit() {
+    const result = validCheck();
+
+    if (result) {
+      document.modifyForm.submit();
+    }
+  }
+
+</script>

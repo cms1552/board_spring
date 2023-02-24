@@ -1,6 +1,7 @@
 package hello.board.domain;
 
 import com.querydsl.core.annotations.QueryProjection;
+import hello.board.web.DTO.UserModifyDto;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,5 +44,10 @@ public class User extends BaseEntity{
         this.loginId = login_id;
         this.password = password;
         this.mailAddress = mailAddress;
+    }
+
+    public void updateUser(UserModifyDto userModifyDto) {
+        this.password = userModifyDto.getPassword();
+        this.mailAddress = userModifyDto.getMailAddress();
     }
 }

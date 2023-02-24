@@ -5,16 +5,20 @@ import hello.board.utils.RedisUtil;
 import hello.board.web.DTO.LoginIdCheckDto;
 import hello.board.web.DTO.UserDto;
 import hello.board.web.DTO.UserLoginDto;
+import hello.board.web.DTO.UserModifyDto;
 import hello.board.web.auth.LoginService;
 import hello.board.web.constant.BasicConstant;
 import hello.board.web.constant.SessionConstant;
 import hello.board.web.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,6 +52,7 @@ public class UserController {
     public String join(HttpServletRequest request, @Validated @ModelAttribute("user") UserDto userDto, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             log.info("join exception {}", bindingResult);
+            model.addAttribute("bindingResult", bindingResult.getFieldError());
             return "joinForm";
         }
 
@@ -105,7 +110,7 @@ public class UserController {
 
     // 세션 로그인
     @PostMapping("/login")
-    public String login(HttpServletRequest request, HttpServletResponse response, @RequestParam(value = BasicConstant.REQUEST_URI, required = false) String originalURI, @Validated @ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, Model model) {
+    public String login(HttpServletRequest request, @RequestParam(value = BasicConstant.REQUEST_URI, required = false) String originalURI, @Validated @ModelAttribute("user") UserLoginDto userLoginDto, BindingResult bindingResult, Model model) {
 
         if (bindingResult.hasErrors()) {
             log.info("login exception {}", bindingResult);
@@ -138,6 +143,7 @@ public class UserController {
         }
         return "redirect:" + originalURI;
     }
+
     // 아이디 중복 체크
     @PostMapping("/duplicateCheck")
     @ResponseBody
@@ -157,10 +163,53 @@ public class UserController {
         }
     }
 
+    // 본인인증 코드 유효시간
     @GetMapping("/authcode/expire")
     @ResponseBody
     public Long getAuthCodeExpire(@RequestParam String key) {
         Long expire = redisUtil.getExpire(key);
         return expire;
+    }
+
+    @GetMapping("/modify")
+    public String getUserModify(@SessionAttribute(name = SessionConstant.LOGIN_ID) String loginId, Model model) {
+        UserModifyDto userModifyDto = new UserModifyDto();
+        userModifyDto.toDto(userService.findByLoginId(loginId));
+        model.addAttribute("userDto2", userModifyDto);
+        model.addAttribute("userDto1", new UserModifyDto());
+        return "userModify";
+    }
+
+    @PostMapping("/modify")
+    public String modifyUser(@Validated @ModelAttribute UserModifyDto userModifyDto, BindingResult bindingResult, Model model) {
+
+        // 유효성 검사
+        if (bindingResult.hasErrors()) {
+            log.error(bindingResult.getFieldError().toString());
+            model.addAttribute("userDto1", new UserModifyDto());
+            model.addAttribute("userDto2", userModifyDto);
+            model.addAttribute("bindingResult", bindingResult.getFieldError());
+            return "userModify";
+        }
+
+        // 비밀번호 확인 검증 ( password == passwordCheck )
+        if (!userModifyDto.getPassword().equals(userModifyDto.getPasswordCheck())) {
+            model.addAttribute("userDto1", new UserModifyDto());
+            model.addAttribute("userDto2", userModifyDto);
+            bindingResult.addError(new ObjectError("userModifyDto", "비밀번호가 맞지 않습니다."));
+            model.addAttribute("bindingResult", bindingResult.getGlobalError());
+            return "userModify";
+        }
+
+        /*
+        * 수정 쿼리
+        * */
+        String encoded = bCryptPasswordEncoder.encode(userModifyDto.getPassword());
+        userModifyDto.setPassword(encoded);
+        UserModifyDto userModifyDto1 = userService.userUpdate(userModifyDto);
+
+        model.addAttribute("userDto1", new UserModifyDto());
+        model.addAttribute("userDto2", userModifyDto1);
+        return "userModify";
     }
 }

@@ -14,6 +14,9 @@
             <a class="nav-link" th:if="${session.login_id eq null}" th:href="@{/user/login}">로그인</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" th:unless="${session.login_id eq null}" th:href="@{/user/modify}">정보수정</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" th:unless="${session.login_id eq null}" th:href="@{/user/logout}">로그아웃</a>
           </li>
           <li class="nav-item">

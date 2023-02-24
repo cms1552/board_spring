@@ -3,9 +3,11 @@ package hello.board.web.service;
 import hello.board.domain.User;
 import hello.board.repository.UserRepository;
 import hello.board.web.DTO.LoginIdCheckDto;
+import hello.board.web.DTO.UserModifyDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -28,5 +30,14 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    @Transactional
+    public UserModifyDto userUpdate(UserModifyDto userModifyDto) {
+        User byLoginId = repository.findByLoginId(userModifyDto.getLoginId());
+        byLoginId.updateUser(userModifyDto);
+        UserModifyDto userModifyDto1 = new UserModifyDto();
+        userModifyDto1.toDto(byLoginId);
+        return userModifyDto1;
     }
 }
