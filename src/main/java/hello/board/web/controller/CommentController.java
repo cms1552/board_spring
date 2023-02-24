@@ -7,6 +7,7 @@ import hello.board.domain.User;
 import hello.board.web.DTO.CommentDto;
 import hello.board.web.DTO.DeleteCommentDto;
 import hello.board.web.DTO.UpdateCommentDto;
+import hello.board.web.annotation.Auth;
 import hello.board.web.constant.SessionConstant;
 import hello.board.web.service.BoardService;
 import hello.board.web.service.CommentService;
@@ -30,6 +31,7 @@ public class CommentController {
     private final UserService userService;
 
     // 댓글 추가
+    @Auth
     @PostMapping("/create")
     public String createComment(@SessionAttribute(name = SessionConstant.LOGIN_ID) String loginId, @ModelAttribute CommentDto commentDto, @RequestParam("board1") Long board_id, @RequestParam(value = "parentId", required = false) Long parent_id) {
 
@@ -52,6 +54,7 @@ public class CommentController {
     }
 
     // 댓글 수정 ajax
+    @Auth
     @PostMapping("/update")
     @ResponseBody
     public UpdateCommentDto updateComment(@RequestBody UpdateCommentDto updateCommentDto) {
@@ -61,6 +64,7 @@ public class CommentController {
     }
 
     // 댓글 삭제 ajax
+    @Auth
     @PostMapping("/delete")
     @ResponseBody
     public void deleteComment(@RequestBody DeleteCommentDto deleteCommentDto) {

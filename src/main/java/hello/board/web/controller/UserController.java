@@ -6,6 +6,7 @@ import hello.board.web.DTO.LoginIdCheckDto;
 import hello.board.web.DTO.UserDto;
 import hello.board.web.DTO.UserLoginDto;
 import hello.board.web.DTO.UserModifyDto;
+import hello.board.web.annotation.Auth;
 import hello.board.web.auth.LoginService;
 import hello.board.web.constant.BasicConstant;
 import hello.board.web.constant.SessionConstant;
@@ -94,6 +95,7 @@ public class UserController {
     }
 
     // 로그아웃
+    @Auth
     @GetMapping("/logout")
     public String logout(HttpServletRequest request) {
         loginService.logout(request);
@@ -171,6 +173,8 @@ public class UserController {
         return expire;
     }
 
+    // 회원 정보 수정
+    @Auth
     @GetMapping("/modify")
     public String getUserModify(@SessionAttribute(name = SessionConstant.LOGIN_ID) String loginId, Model model) {
         UserModifyDto userModifyDto = new UserModifyDto();
@@ -180,6 +184,8 @@ public class UserController {
         return "userModify";
     }
 
+    // 회원 정보 수정
+    @Auth
     @PostMapping("/modify")
     public String modifyUser(@Validated @ModelAttribute UserModifyDto userModifyDto, BindingResult bindingResult, Model model) {
 

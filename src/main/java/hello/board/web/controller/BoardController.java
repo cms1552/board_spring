@@ -183,6 +183,7 @@ public class BoardController {
     }
 
     // 게시물 수정 폼
+    @Auth
     @GetMapping("/modify/{id}")
     public String boardModifyForm(@PathVariable Long id, Model model) {
 
@@ -196,6 +197,7 @@ public class BoardController {
     }
 
     // 게시물 수정
+    @Auth
     @PostMapping("/modify/{id}")
     public String modifyBoard(@PathVariable Long id, @Validated @ModelAttribute BoardDto boardDto, @RequestParam(name = "deleteFile",required = false) List<Long> deleteFiles, BindingResult bindingResult, Model model) throws IOException {
 
@@ -254,6 +256,7 @@ public class BoardController {
     }
 
     // 게시물 삭제
+    @Auth
     @GetMapping("/delete/{id}")
     public String deleteBoard(@PathVariable Long id) {
 
